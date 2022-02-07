@@ -198,3 +198,101 @@ server.3 = 0.0.0.0:2888:3888
 
 如果没有正常运行可以去 `zookeeper/logs`文件夹下面看对应的日志信息。
 
+### zookeeper相关命令
+
+> get命令
+
+获取某个节点的信息，注意一定是`/`开头
+
+> stat
+
+stat命令查看节点的状态信息
+
+```properties
+cZxid = 0x100000002
+ctime = Tue Dec 14 12:40:05 UTC 2021
+mZxid = 0x100000002
+mtime = Tue Dec 14 12:40:05 UTC 2021
+pZxid = 0x100000009
+cversion = 1
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 10
+numChildren = 1
+```
+
+- cZxid - 节点创建时的zxid
+- ctime - 节点创建时间
+- mZxid - 节点最近一次更新时的zxid
+- mtime - 节点最近一次更新的时间
+- cversion - 子节点数据更新次数
+- dataVersion - 本届点数据更新次数
+- aclVersion - 节点acl（授权信息）的更新次数
+- numChildren - 子节点个数
+
+> set
+
+设置节点数据的
+
+```sh
+set /test 8888888
+```
+
+> ls
+
+　ls命令用于获取路径下的节点信息，注意路径为绝对路径，如:ls /storm
+
+> ls2
+
+比ls多输出一个本节点信息 好比 ls + stat
+
+> listquota
+
+显示配额
+
+> setquota
+
+设置某个节点的节点个数和数据长度的配额
+
+> delquota
+
+删除配额
+
+> create 
+
+create命令用于创建节点，其中-s为顺序充点，-e临时节点　
+
+```sh
+create /zookeeper/node1"test_create" world:anyone:fdsfds
+```
+
+> delete
+
+　delete命令用于删除节点，如delete /nodeDelete
+
+> addauth
+
+addauth命令用于节点认证，使用方式：如addauth digest username:password
+
+> setAcl
+
+setAcl命令用于设置节点Acl
+
+　　Acl由三部分构成：1为scheme，2为user，3为permission，一般情况下表示为scheme🆔permissions
+
+> getAcl
+
+　获取节点的Acl，如getAcl /node1
+
+scheme和id
+
+**world**: 它下面只有一个id, 叫anyone, world:anyone代表任何人，zookeeper中对所有人有权限的结点就是属于world:anyone的
+
+**auth**: 它不需要id, 只要是通过authentication的user都有权限（zookeeper支持通过kerberos来进行authencation, 也支持username/password形式的authentication)
+
+**digest**: 它对应的id为username:BASE64(SHA1(password))，它需要先通过username:password形式的authentication
+
+**ip**: 它对应的id为客户机的IP地址，设置的时候可以设置一个ip段，比如ip:192.168.1.0/16, 表示匹配前16个bit的IP段
+
+**super**: 在这种scheme情况下，对应的id拥有超级权限，可以做任何事情(cdrwa)
